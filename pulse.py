@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""pulse — glanceable git repo dashboard.
+"""pulse — tableau de bord glissant pour tes repos git.
 
-Scan a directory, find every git repo, and show branch state, recent activity,
-and last commit in one synthwave-colored screen.
+Scanne un dossier, trouve tous les repos git, et affiche l'état des branches,
+l'activité récente et le dernier commit sur un seul écran aux couleurs synthwave.
 """
 
 from __future__ import annotations
@@ -170,18 +170,18 @@ def fmt_age(ts: int) -> str:
         return "—"
     d = int(time.time()) - ts
     if d < 0:
-        return "now"
+        return "à l'instant"
     if d < 60:
-        return f"{d}s ago"
+        return f"il y a {d}s"
     if d < 3600:
-        return f"{d // 60}m ago"
+        return f"il y a {d // 60}m"
     if d < 86400:
-        return f"{d // 3600}h ago"
+        return f"il y a {d // 3600}h"
     if d < 86400 * 30:
-        return f"{d // 86400}d ago"
+        return f"il y a {d // 86400}j"
     if d < 86400 * 365:
-        return f"{d // (86400 * 30)}mo ago"
-    return f"{d // (86400 * 365)}y ago"
+        return f"il y a {d // (86400 * 30)}mois"
+    return f"il y a {d // (86400 * 365)}ans"
 
 
 def truncate(s: str, n: int) -> str:
@@ -223,7 +223,7 @@ def render(repos: list[Repo], width: int) -> str:
     box_w = max(60, min(width, 120))
 
     title = "P U L S E"
-    sub = f"{n} repos · {dirty} dirty · {ahead} ↑ · {behind} ↓"
+    sub = f"{n} repos · {dirty} modifiés · {ahead} ↑ · {behind} ↓"
 
     out.append(Style.MAGENTA + "╔" + "═" * (box_w - 2) + "╗" + Style.RESET)
     out.append(
@@ -240,7 +240,7 @@ def render(repos: list[Repo], width: int) -> str:
     out.append("")
 
     if not repos:
-        out.append(f"  {Style.GREY}no git repos found{Style.RESET}")
+        out.append(f"  {Style.GREY}aucun repo git trouvé{Style.RESET}")
         return "\n".join(out)
 
     repos = sorted(repos, key=lambda r: -r.last_commit_at)
@@ -279,7 +279,7 @@ def render(repos: list[Repo], width: int) -> str:
             bits.append(Style.CYAN + f"↑{r.ahead}" + Style.RESET)
         if r.behind:
             bits.append(Style.MAGENTA + f"↓{r.behind}" + Style.RESET)
-        state_raw = " ".join(bits) if bits else Style.GREEN + "clean" + Style.RESET
+        state_raw = " ".join(bits) if bits else Style.GREEN + "propre" + Style.RESET
         state = pad_visible(state_raw, state_w)
 
         line = f"  {marker} {name} {branch}  {spark}  {state}  {age}"
@@ -310,23 +310,23 @@ def collect(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="pulse",
-        description="Glanceable git repo dashboard for your terminal.",
+        description="Tableau de bord glissant pour tes repos git dans le terminal.",
     )
     parser.add_argument("root", nargs="?", default=".",
-                        help="Directory to scan (default: current).")
+                        help="Dossier à scanner (par défaut : courant).")
     parser.add_argument("--depth", type=int, default=6,
-                        help="Max scan depth (default: 6).")
+                        help="Profondeur de scan max (défaut : 6).")
     parser.add_argument("--limit", type=int, default=None,
-                        help="Show only N most recent.")
+                        help="Afficher seulement les N plus récents.")
     parser.add_argument("--dirty", action="store_true",
-                        help="Show only repos with uncommitted work.")
+                        help="Afficher seulement les repos avec du travail non commité.")
     parser.add_argument("--watch", type=float, nargs="?", const=5.0, default=None,
                         metavar="SEC",
-                        help="Refresh every N seconds (default 5).")
+                        help="Rafraîchir toutes les N secondes (défaut 5).")
     parser.add_argument("--no-color", action="store_true",
-                        help="Plain output, no ANSI codes.")
+                        help="Sortie brute, sans codes ANSI.")
     parser.add_argument("--workers", type=int, default=8,
-                        help="Concurrent git probes (default: 8).")
+                        help="Sondes git en parallèle (défaut : 8).")
     parser.add_argument("--version", action="version", version=f"pulse {__version__}")
     args = parser.parse_args(argv)
 
@@ -335,7 +335,7 @@ def main(argv: list[str] | None = None) -> int:
 
     root = Path(args.root).expanduser()
     if not root.exists():
-        print(f"pulse: {root} does not exist", file=sys.stderr)
+        print(f"pulse: {root} n'existe pas", file=sys.stderr)
         return 2
 
     def show_once() -> None:
@@ -348,7 +348,7 @@ def main(argv: list[str] | None = None) -> int:
             while True:
                 sys.stdout.write("\x1b[2J\x1b[H")
                 show_once()
-                print(f"\n  {Style.DARK}↻ every {args.watch:g}s · ctrl-c to quit{Style.RESET}")
+                print(f"\n  {Style.DARK}↻ toutes les {args.watch:g}s · ctrl-c pour quitter{Style.RESET}")
                 time.sleep(args.watch)
         except KeyboardInterrupt:
             sys.stdout.write("\n")

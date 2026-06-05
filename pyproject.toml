@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pulse-dashboard"
 version = "0.1.0"
-description = "Glanceable git repo dashboard for your terminal."
+description = "Tableau de bord glissant pour tes repos git dans le terminal."
 requires-python = ">=3.9"
 authors = [{ name = "SamyNikaia" }]
 keywords = ["git", "dashboard", "cli", "tui"]
