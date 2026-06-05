@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pulse-dashboard"
+version = "0.1.0"
+description = "Glanceable git repo dashboard for your terminal."
+requires-python = ">=3.9"
+authors = [{ name = "SamyNikaia" }]
+keywords = ["git", "dashboard", "cli", "tui"]
+
+[project.scripts]
+pulse = "pulse:main"
+
+[tool.setuptools]
+py-modules = ["pulse"]
